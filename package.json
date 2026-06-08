@@ -5,7 +5,13 @@
   "license": "MIT",
   "author": "Tag1 Consulting <info@tag1.com>",
   "homepage": "https://tag1.com",
-  "keywords": ["search", "ai", "pagefind", "nuxt", "vue"],
+  "keywords": [
+    "search",
+    "ai",
+    "pagefind",
+    "nuxt",
+    "vue"
+  ],
   "type": "module",
   "engines": {
     "node": ">=20"
@@ -34,7 +40,12 @@
   "bin": {
     "scolta-build": "./dist/cli.js"
   },
-  "files": ["dist", "README.md", "CHANGELOG.md", "LICENSE"],
+  "files": [
+    "dist",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
   "scripts": {
     "build": "tsup",
     "test": "vitest run",
@@ -42,6 +53,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@nuxt/kit": "^3.11.0",
     "scolta": "file:../scolta-node"
   },
   "peerDependencies": {
