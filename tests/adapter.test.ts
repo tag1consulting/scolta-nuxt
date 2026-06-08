@@ -138,10 +138,15 @@ describe("Nitro AI handler logic (createScoltaApi)", () => {
 });
 
 describe("buildWindowScolta", () => {
-  it("reflects config and derives wasmPath", () => {
+  it("reflects config and derives wasmPath glue module", () => {
     const config = NuxtScoltaConfig.fromObject({ site_name: "Acme" });
     const win = buildWindowScolta(config.toBrowserConfig(), { assetsPath: "/scolta" });
     expect(win["siteName"]).toBe("Acme");
-    expect(win["wasmPath"]).toBe("/scolta/wasm/");
+    expect(win["wasmPath"]).toBe("/scolta/wasm/scolta_core.js");
+  });
+
+  it("names the mount container so scolta.js auto-init does not bail", () => {
+    expect(buildWindowScolta({})["container"]).toBe("#scolta-search");
+    expect(buildWindowScolta({}, { containerId: "my-box" })["container"]).toBe("#my-box");
   });
 });

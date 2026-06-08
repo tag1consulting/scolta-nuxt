@@ -42,6 +42,7 @@ export const ScoltaSearch = defineComponent({
       (window as unknown as { scolta?: unknown }).scolta = buildWindowScolta(props.config, {
         assetsPath: props.assetsPath,
         pagefindPath: props.pagefindPath,
+        containerId: props.containerId,
       });
       ensureStylesheet(`${base}/css/scolta.css`);
       ensureScript(`${base}/js/scolta.js`);
