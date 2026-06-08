@@ -3,6 +3,7 @@ import { defineConfig } from "tsup";
 export default defineConfig({
   entry: {
     module: "src/module.ts",
+    core: "src/core.ts",
     build: "src/build.ts",
     cli: "src/cli.ts",
   },

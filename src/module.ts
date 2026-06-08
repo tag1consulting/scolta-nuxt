@@ -39,14 +39,7 @@ export default defineNuxtModule<ModuleOptions>({
   },
 });
 
-// Named utilities for direct use (server routes, manual builds, tests).
-export { NuxtScoltaConfig, type NuxtScoltaConfigInit, type ContentMode } from "./config.js";
-export { createScoltaApi, type ScoltaApi, type ScoltaApiOptions } from "./handlers.js";
-export { buildIndex, crawlStaticOutput, exportPathToUrl, type BuildOptions } from "./build.js";
-export {
-  CachedContentReference,
-  collectSource,
-  type ScoltaContentSource,
-  type EnumeratedContent,
-} from "./content-source.js";
-export { buildWindowScolta, type BootstrapOptions } from "./bootstrap.js";
+// The framework-free core is also available from the module entry (Nuxt
+// context). Plain-Node consumers should import from `scolta-nuxt/core` to avoid
+// loading @nuxt/kit.
+export * from "./core.js";

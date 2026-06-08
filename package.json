@@ -19,6 +19,11 @@
       "import": "./dist/module.js",
       "require": "./dist/module.cjs"
     },
+    "./core": {
+      "types": "./dist/core.d.ts",
+      "import": "./dist/core.js",
+      "require": "./dist/core.cjs"
+    },
     "./build": {
       "types": "./dist/build.d.ts",
       "import": "./dist/build.js",
