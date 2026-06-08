@@ -9,6 +9,7 @@
  *   npx scolta-build assets     # copy runtime assets into the output dir
  */
 
+import { realpathSync } from "node:fs";
 import * as path from "node:path";
 import { pathToFileURL } from "node:url";
 import { NuxtScoltaConfig, type NuxtScoltaConfigInit } from "./config.js";
@@ -49,7 +50,18 @@ export async function main(argv = process.argv.slice(2)): Promise<number> {
   return 1;
 }
 
-if (import.meta.url === pathToFileURL(process.argv[1] ?? "").href) {
+/** True when this module is the entry point — symlink-safe (npm `.bin` links). */
+function invokedDirectly(): boolean {
+  const argv1 = process.argv[1];
+  if (!argv1) return false;
+  try {
+    return import.meta.url === pathToFileURL(realpathSync(argv1)).href;
+  } catch {
+    return import.meta.url === pathToFileURL(argv1).href;
+  }
+}
+
+if (invokedDirectly()) {
   main().then((code) => process.exit(code)).catch((err) => {
     console.error(err);
     process.exit(1);
