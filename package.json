@@ -1,0 +1,54 @@
+{
+  "name": "scolta-nuxt",
+  "version": "1.0.0",
+  "description": "Scolta module for Nuxt 3 — AI-powered Pagefind search for Vue",
+  "license": "MIT",
+  "author": "Tag1 Consulting <info@tag1.com>",
+  "homepage": "https://tag1.com",
+  "keywords": ["search", "ai", "pagefind", "nuxt", "vue"],
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "main": "./dist/module.cjs",
+  "module": "./dist/module.js",
+  "types": "./dist/module.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/module.d.ts",
+      "import": "./dist/module.js",
+      "require": "./dist/module.cjs"
+    },
+    "./build": {
+      "types": "./dist/build.d.ts",
+      "import": "./dist/build.js",
+      "require": "./dist/build.cjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "bin": {
+    "scolta-build": "./dist/cli.js"
+  },
+  "files": ["dist", "README.md", "CHANGELOG.md", "LICENSE"],
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "scolta": "file:../scolta-node"
+  },
+  "peerDependencies": {
+    "nuxt": ">=3"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.0.0",
+    "@types/node": "^20.11.0",
+    "eslint": "^9.0.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.4.0",
+    "typescript-eslint": "^8.0.0",
+    "vitest": "^1.6.0"
+  }
+}
