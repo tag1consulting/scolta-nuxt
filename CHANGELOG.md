@@ -1,6 +1,12 @@
 # Changelog
 
-## Unreleased
+## [Unreleased]
+
+## [1.0.0] - 2026-06-09
+
+- The `scolta` dependency now uses the published `^1.0.0` range instead of a
+  local `file:../scolta-node` path, so the released tarball installs the binding
+  from npm.
 
 - Nitro AI routes now send the raw payload (`{terms}` / `{summary}` /
   `{response}`) on success and `{error}` on failure, instead of an `{ok,data}`

@@ -54,7 +54,7 @@
   },
   "dependencies": {
     "@nuxt/kit": "^3.11.0",
-    "scolta": "file:../scolta-node"
+    "scolta": "^1.0.0"
   },
   "peerDependencies": {
     "nuxt": ">=3"
