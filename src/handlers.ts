@@ -25,8 +25,21 @@ export interface ScoltaApi {
   health(): Promise<Record<string, unknown>>;
 }
 
+/**
+ * Default AI service: when the resolved provider is `amazee`, use the
+ * auto-provisioning {@link ai.AmazeeAiService} (free LiteLLM trial on first use,
+ * no key required) backed by a filesystem credential store under the state dir.
+ * Otherwise the plain {@link ai.AiServiceAdapter} (explicit key / framework AI).
+ */
+function defaultAiService(config: NuxtScoltaConfig): ai.AiServiceLike {
+  if (config.scolta.ai_provider === "amazee") {
+    return new ai.AmazeeAiService(config.scolta, new ai.FilesystemConfigStorage(config.stateDir));
+  }
+  return new ai.AiServiceAdapter(config.scolta);
+}
+
 export function createScoltaApi(config: NuxtScoltaConfig, opts: ScoltaApiOptions = {}): ScoltaApi {
-  const aiService = opts.aiService ?? new ai.AiServiceAdapter(config.scolta);
+  const aiService = opts.aiService ?? defaultAiService(config);
   const handler = ai.createAiEndpointHandler(aiService, config.scolta, {
     cache: opts.cache ?? new NullCacheDriver(),
     generation: opts.generation ?? 0,

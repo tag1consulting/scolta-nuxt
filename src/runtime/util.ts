@@ -22,14 +22,18 @@ export function resolveConfig(): NuxtScoltaConfig {
   return NuxtScoltaConfig.fromEnv((rc.scolta ?? {}) as NuxtScoltaConfigInit);
 }
 
-/** Map an EndpointResult to a Nitro response (sets status/headers as needed). */
-export function respond(event: H3Event, result: EndpointResultLike): Record<string, unknown> {
+/**
+ * Map an EndpointResult to a Nitro response body (sets status/headers as needed).
+ * scolta.js reads the payload fields (terms/summary/response) directly off the
+ * response body, so success responses send the raw `data` (not an {ok,data}
+ * envelope) and failures send {error} — mirroring the Django/Laravel/Drupal
+ * controllers' response mapping exactly.
+ */
+export function respond(event: H3Event, result: EndpointResultLike): unknown {
   if (result.ok) {
-    return { ok: true, data: result.data ?? {} };
+    return result.data ?? {};
   }
-  setResponseStatus(event, result.status ?? 400);
+  setResponseStatus(event, result.status ?? 500);
   if (result.retry_after) setResponseHeader(event, "Retry-After", result.retry_after);
-  const body: Record<string, unknown> = { ok: false, error: result.error };
-  if (result.limit !== undefined) body["limit"] = result.limit;
-  return body;
+  return { error: result.error ?? "Error" };
 }
