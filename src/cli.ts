@@ -19,8 +19,9 @@ import { copyAssets } from "./assets.js";
 async function loadConfigObject(cwd: string): Promise<NuxtScoltaConfigInit> {
   for (const name of ["scolta.config.mjs", "scolta.config.js"]) {
     try {
-      const mod = await import(pathToFileURL(path.join(cwd, name)).href);
-      const obj = mod.default ?? mod.config ?? mod;
+      const mod: unknown = await import(pathToFileURL(path.join(cwd, name)).href);
+      const m = mod as { default?: unknown; config?: unknown };
+      const obj = m.default ?? m.config ?? mod;
       if (obj && typeof obj === "object") return obj as NuxtScoltaConfigInit;
     } catch {
       // fall through to env-only

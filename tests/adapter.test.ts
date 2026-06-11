@@ -37,7 +37,7 @@ describe("config round-trip (Release Gate family 4)", () => {
   });
 
   it("fromEnv reads SCOLTA_API_KEY", () => {
-    const c = NuxtScoltaConfig.fromEnv({}, { SCOLTA_API_KEY: "sk-env" } as any);
+    const c = NuxtScoltaConfig.fromEnv({}, { SCOLTA_API_KEY: "sk-env" });
     expect(c.scolta.ai_api_key).toBe("sk-env");
   });
 
