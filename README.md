@@ -23,6 +23,14 @@ The module registers the Nitro AI routes at the exact paths `scolta.js` defaults
 to (`/api/scolta/v1/{expand-query,summarize,followup,health}`) and auto-registers
 `<ScoltaSearch />`.
 
+## Health endpoint
+
+`GET /api/scolta/v1/health` returns `{"status": "ok"|"degraded"}` — enough for
+uptime monitors. The full diagnostic payload (provider, index state, scoring
+config) is exposed only with `healthDetail: true` in the module options. There
+is no user model in a headless stack, so detail is config-gated rather than
+auth-gated; enable it only where the endpoint is not publicly reachable.
+
 ## Content modes
 
 - **`static-export`** (default) — after `nuxt generate`, `npx scolta-build`

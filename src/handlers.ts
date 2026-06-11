@@ -51,9 +51,16 @@ export function createScoltaApi(config: NuxtScoltaConfig, opts: ScoltaApiOptions
     expandQuery: (body) => handler.handleExpandQuery(String(body?.query ?? "")),
     summarize: (body) => handler.handleSummarize(String(body?.query ?? ""), String(body?.context ?? "")),
     followUp: (body) => handler.handleFollowUp(Array.isArray(body?.messages) ? body!.messages! : []),
-    health: async () => ({
-      ...(await new HealthChecker(config.scolta, config.outputDir).check()),
-      scoring: config.scolta.toJsScoringConfig(),
-    }),
+    health: async () => {
+      // The full report is always computed so the trimmed status still
+      // reflects degradation; without healthDetail every caller gets exactly
+      // {status} — enough for uptime monitors, nothing a public endpoint
+      // shouldn't expose.
+      const report = await new HealthChecker(config.scolta, config.outputDir).check();
+      if (!config.healthDetail) {
+        return { status: report.status };
+      }
+      return { ...report, scoring: config.scolta.toJsScoringConfig() };
+    },
   };
 }
