@@ -8,6 +8,7 @@
  */
 
 import { addComponent, addServerHandler, createResolver, defineNuxtModule } from "@nuxt/kit";
+import type { Nuxt } from "@nuxt/schema";
 import type { NuxtScoltaConfigInit } from "./config.js";
 
 export type ModuleOptions = NuxtScoltaConfigInit;
@@ -21,12 +22,12 @@ export default defineNuxtModule<ModuleOptions>({
   defaults: {
     source: "static-export",
   },
-  setup(options: ModuleOptions, nuxt: any) {
+  setup(options: ModuleOptions, nuxt: Nuxt) {
     const resolver = createResolver(import.meta.url);
 
     // Expose config to the Nitro server routes (private runtimeConfig).
-    nuxt.options.runtimeConfig = nuxt.options.runtimeConfig ?? {};
-    nuxt.options.runtimeConfig.scolta = { ...(nuxt.options.runtimeConfig.scolta ?? {}), ...options };
+    const runtimeConfig = nuxt.options.runtimeConfig as Record<string, unknown>;
+    runtimeConfig["scolta"] = { ...((runtimeConfig["scolta"]) ?? {}), ...options };
 
     // Mount the AI endpoints at scolta.js's default paths.
     addServerHandler({ route: "/api/scolta/v1/expand-query", method: "post", handler: resolver.resolve("./runtime/expand-query.post") });
