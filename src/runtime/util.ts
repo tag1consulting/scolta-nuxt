@@ -6,6 +6,7 @@
 import { setResponseHeader, setResponseStatus, type H3Event } from "h3";
 import { useRuntimeConfig } from "#imports";
 import { NuxtScoltaConfig, type NuxtScoltaConfigInit } from "../config.js";
+import { createScoltaApi, type ScoltaApi } from "../handlers.js";
 
 export interface EndpointResultLike {
   ok: boolean;
@@ -19,7 +20,26 @@ export interface EndpointResultLike {
 /** Resolve the per-request config from Nuxt runtimeConfig + environment. */
 export function resolveConfig(): NuxtScoltaConfig {
   const rc = useRuntimeConfig();
-  return NuxtScoltaConfig.fromEnv((rc.scolta ?? {}) as NuxtScoltaConfigInit);
+  return NuxtScoltaConfig.fromEnv((rc.scolta ?? {}));
+}
+
+// Nitro hands every request the same runtimeConfig object, so its identity
+// keys the cache: config + API construction (an env re-parse over ~50 fields
+// plus AI service wiring) happens once per config, not once per request. A
+// WeakMap so a replaced runtimeConfig (tests, dev reloads) never pins the old
+// API alive.
+const apiCache = new WeakMap<object, ScoltaApi>();
+
+/** The ScoltaApi for the current runtimeConfig — memoized by its identity. */
+export function useScoltaApi(): ScoltaApi {
+  const rc = useRuntimeConfig() as object;
+  const cached = apiCache.get(rc);
+  if (cached) return cached;
+  const api = createScoltaApi(
+    NuxtScoltaConfig.fromEnv(((rc as { scolta?: unknown }).scolta ?? {}) as NuxtScoltaConfigInit),
+  );
+  apiCache.set(rc, api);
+  return api;
 }
 
 /**

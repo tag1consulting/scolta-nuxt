@@ -50,7 +50,7 @@ export function createScoltaApi(config: NuxtScoltaConfig, opts: ScoltaApiOptions
   return {
     expandQuery: (body) => handler.handleExpandQuery(String(body?.query ?? "")),
     summarize: (body) => handler.handleSummarize(String(body?.query ?? ""), String(body?.context ?? "")),
-    followUp: (body) => handler.handleFollowUp(Array.isArray(body?.messages) ? body!.messages! : []),
+    followUp: (body) => handler.handleFollowUp(Array.isArray(body?.messages) ? body.messages : []),
     health: async () => {
       // The full report is always computed so the trimmed status still
       // reflects degradation; without healthDetail every caller gets exactly

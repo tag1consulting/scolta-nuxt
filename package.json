@@ -5,6 +5,13 @@
   "license": "MIT",
   "author": "Tag1 Consulting <info@tag1.com>",
   "homepage": "https://tag1.com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tag1consulting/scolta-nuxt.git"
+  },
+  "bugs": {
+    "url": "https://github.com/tag1consulting/scolta-nuxt/issues"
+  },
   "keywords": [
     "search",
     "ai",
@@ -21,19 +28,34 @@
   "types": "./dist/module.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/module.d.ts",
-      "import": "./dist/module.js",
-      "require": "./dist/module.cjs"
+      "import": {
+        "types": "./dist/module.d.ts",
+        "default": "./dist/module.js"
+      },
+      "require": {
+        "types": "./dist/module.d.cts",
+        "default": "./dist/module.cjs"
+      }
     },
     "./core": {
-      "types": "./dist/core.d.ts",
-      "import": "./dist/core.js",
-      "require": "./dist/core.cjs"
+      "import": {
+        "types": "./dist/core.d.ts",
+        "default": "./dist/core.js"
+      },
+      "require": {
+        "types": "./dist/core.d.cts",
+        "default": "./dist/core.cjs"
+      }
     },
     "./build": {
-      "types": "./dist/build.d.ts",
-      "import": "./dist/build.js",
-      "require": "./dist/build.cjs"
+      "import": {
+        "types": "./dist/build.d.ts",
+        "default": "./dist/build.js"
+      },
+      "require": {
+        "types": "./dist/build.d.cts",
+        "default": "./dist/build.cjs"
+      }
     },
     "./package.json": "./package.json"
   },
@@ -50,7 +72,8 @@
     "build": "tsup",
     "test": "vitest run",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "check:publish": "publint && attw --pack ."
   },
   "dependencies": {
     "@nuxt/kit": "^3.11.0",
@@ -60,12 +83,28 @@
     "nuxt": ">=3"
   },
   "devDependencies": {
+    "@arethetypeswrong/cli": "^0.18.3",
     "@eslint/js": "^9.0.0",
+    "@nuxt/schema": "^4.4.8",
     "@types/node": "^20.11.0",
+    "@vue/test-utils": "^2.4.11",
     "eslint": "^9.0.0",
+    "jsdom": "^29.1.1",
+    "publint": "^0.3.21",
     "tsup": "^8.0.0",
     "typescript": "^5.4.0",
     "typescript-eslint": "^8.0.0",
-    "vitest": "^1.6.0"
+    "vitest": "^1.6.0",
+    "vue": "^3.5.38"
+  },
+  "typesVersions": {
+    "*": {
+      "core": [
+        "./dist/core.d.ts"
+      ],
+      "build": [
+        "./dist/build.d.ts"
+      ]
+    }
   }
 }
