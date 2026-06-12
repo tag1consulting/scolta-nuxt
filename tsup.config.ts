@@ -15,6 +15,12 @@ export default defineConfig({
     "runtime/health.get": "src/runtime/health.get.ts",
   },
   format: ["esm", "cjs"],
+  // import.meta.url is empty ({}) in the CJS output without this: the shim
+  // derives it from __filename, so the CLI's direct-invoke detection,
+  // copyAssets source-dir resolution, and the module's createResolver work
+  // under the .cjs entries too. Without it, `node dist/cli.cjs assets`
+  // exited 0 as a silent no-op.
+  shims: true,
   dts: true,
   clean: true,
   sourcemap: true,

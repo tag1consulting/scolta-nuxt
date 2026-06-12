@@ -9,7 +9,12 @@ scolta-next and applies unchanged.
 
 - Main entry `scolta-nuxt` is the Nuxt module (default export) + named utils.
   Framework-free build utils are also at `scolta-nuxt/build`.
-- `scolta` is a `file:` dependency; build scolta-node first.
+- `scolta` resolves from the npm registry (the lock must stay
+  registry-resolved). For local development against the sibling, build
+  scolta-node and symlink manually:
+  `ln -s ../../scolta-node node_modules/scolta` (any npm install/ci replaces
+  it; re-create afterwards — and never run plain `npm install` while the
+  symlink exists, npm's tree repair drops esbuild's platform binary).
 - nuxt/@nuxt/kit/h3/vue are peer/ambient — declared in src/types/ambient.d.ts so
   the package typechecks/builds standalone; real types come from the consumer.
 - No AI attribution. Tests are vitest against the plain handler/build/config
