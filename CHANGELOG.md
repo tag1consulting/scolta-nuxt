@@ -2,7 +2,46 @@
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-06-12
+
+### Fixed
+
+- **The CJS CLI was a silent no-op.** Every `import.meta.url` in the CJS
+  bundles compiled to a property of an empty object, so `node dist/cli.cjs
+  assets` exited 0 having done NOTHING — the direct-invoke check compared
+  `undefined` against the argv URL — and a programmatic `main()` threw from
+  `copyAssets`'s `createRequire(undefined)`; `module.cjs`'s
+  `createResolver(import.meta.url)` carried the same defect. Root cause: the
+  tsup build lacked the `import.meta` shim for the CJS format; `shims: true`
+  now derives it from `__filename`. New tests spawn `dist/cli.cjs` AND
+  `dist/cli.js` as real child processes and assert the work product (assets
+  actually copied into `.output/public`), not the exit code — the unshimmed
+  CJS build passes an exit-code-only check.
+- **`bin[scolta-build]` publish warning** — npm "cleaned" the bin value's
+  `./` prefix at every publish; normalized via `npm pkg fix`
+  (`./dist/cli.js` → `dist/cli.js`). `npm publish --dry-run` is now
+  warning-free.
+- **Per-request config + API construction memoized.** Every Nitro request
+  called `createScoltaApi(resolveConfig())`, re-parsing env and ~50 config
+  fields and re-wiring the AI service per request. Nitro hands every request
+  the same runtimeConfig object, so a WeakMap keyed on its identity now
+  constructs the config + API once per config (and never pins a replaced
+  runtimeConfig alive).
+- **CJS consumers resolved ESM-flavoured types.** All three subpaths
+  (`.`, `./core`, `./build`) pointed both `import` and `require` at one
+  `.d.ts`; each condition now resolves its own types file (`.d.cts` for
+  `require`), with `typesVersions` for node10-style subpath resolution.
+- **Ambient `any` declarations replaced by real types.** The
+  `declare module` blocks gave `vue` and `@nuxt/kit` any-shaped signatures
+  (`defineComponent(options: any): any`) even though real types are
+  installed; those two blocks are gone (h3/`#imports` stay — they come from
+  the consumer's nitro), the module setup signature is
+  `(options, nuxt: Nuxt)`, and a packaging test pins that no ambient
+  declaration ever reaches the published `.d.ts` (it would augment/shadow
+  consumers' real modules).
+
 ### Changed
+
 - **The health route now returns status-only by default.**
   `GET /api/scolta/v1/health` previously exposed the full diagnostic payload
   (AI provider, configured flags, index state, scoring config) to every
@@ -12,6 +51,26 @@
   module option (default `false`); there is no user model in a headless
   stack, so detail is config-gated rather than auth-gated. Matches the
   status-only anonymous shape of the PHP-family and Django adapters.
+- eslint moved to `recommendedTypeChecked`; `noImplicitOverride` enabled;
+  documented scoped exceptions for the tests' unsafe-any family.
+- vitest 1.6 -> 3.2.6 (dev-only; pulls vite 7 / patched esbuild for the
+  GHSA-67mh-4wv8-2f99 dev-server advisory).
+- package metadata: `repository`/`bugs` fields added.
+
+### Added
+
+- **Widget-mount smoke test** — mounting `<ScoltaSearch>` with
+  @vue/test-utils under jsdom now asserts the container div renders, the
+  stylesheet/script tags inject with the right URLs, and the emitted
+  `window.scolta` carries `container` + a `wasmPath` ending in the WASM glue
+  module (nothing previously exercised the `onMounted`/DOM path).
+- **CI and tag-triggered releases.** `.github/workflows/ci.yml` (PRs + main;
+  Node 20/22 matrix; `npm ci`, build, test, typecheck, lint,
+  `check:publish`) and `.github/workflows/release.yml` (`v*.*.*` tags publish
+  to npm via OIDC Trusted Publishing — no long-lived token, automatic
+  provenance).
+- **Publish-shape gate.** `check:publish` runs publint +
+  `@arethetypeswrong/cli`; part of the local and CI gates.
 
 ## [1.0.0] - 2026-06-09
 
