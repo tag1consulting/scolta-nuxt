@@ -23,6 +23,11 @@ The module registers the Nitro AI routes at the exact paths `scolta.js` defaults
 to (`/api/scolta/v1/{expand-query,summarize,followup,health}`) and auto-registers
 `<ScoltaSearch />`.
 
+## Configuration
+
+Options under the `scolta` key are the shared binding's — the full reference is
+[`scolta`'s CONFIG_REFERENCE](../scolta-node/docs/CONFIG_REFERENCE.md).
+
 ## Health endpoint
 
 `GET /api/scolta/v1/health` returns `{"status": "ok"|"degraded"}` — enough for
