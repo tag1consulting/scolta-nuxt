@@ -73,7 +73,8 @@
     "test": "vitest run",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "check:publish": "publint && attw --pack ."
+    "check:publish": "publint && attw --pack .",
+    "check:pack": "node scripts/check-pack-contents.mjs"
   },
   "dependencies": {
     "@nuxt/kit": "^3.11.0",
