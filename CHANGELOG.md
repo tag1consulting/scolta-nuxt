@@ -2,6 +2,20 @@
 
 ## [Unreleased]
 
+### Added
+
+- **npm pack-content guard.** A new CI step (`npm run check:pack`,
+  `scripts/check-pack-contents.mjs`) runs `npm pack --dry-run --json` and
+  asserts every packed path stays inside an allowlist of prefixes DERIVED
+  FROM this package's own `files` field (`dist`, `README.md`, `CHANGELOG.md`,
+  `LICENSE`, plus the always-packed `package.json`) and that the unpacked
+  tarball stays under a size cap (500_000 bytes, ~2x the measured 244_871-byte
+  baseline). The `files` field is already a fail-closed publish allowlist;
+  this guard is the regression test that keeps it true so build cruft, source,
+  or vendored assets can never leak into the published module — failures print
+  the leaked path and point at the package.json `files` filter. Runs after
+  `npm run build` (so `dist/` exists) and locally via the same script.
+
 ### Changed
 
 - Document where config options are defined: link the binding's
