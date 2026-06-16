@@ -56,5 +56,25 @@ npx scolta-build assets     # copy runtime assets into the output dir
 
 ## Auto-rebuild
 
-The same `ScoltaTracker` debounce pattern as scolta-next (gated on
-`autoRebuild`); serverless deployments should trigger rebuilds via webhook/CI.
+`ScoltaTracker` is the debounced rebuild helper the `autoRebuild` /
+`autoRebuildDelay` config knobs configure — exported from `scolta-nuxt`, the
+same helper [`scolta-next`](../scolta-next) ships. Wire `touch(key)` to your
+content-change events and it schedules a single debounced rebuild that reuses
+the token cache, so only changed pages re-tokenize:
+
+```ts
+import { createScoltaTracker, NuxtScoltaConfig } from "scolta-nuxt";
+
+const config = NuxtScoltaConfig.fromEnv({ autoRebuild: true, source: "content" });
+const tracker = createScoltaTracker(config, { source: mySource });
+
+// from a Nitro server route / content webhook:
+tracker.touch(`articles:${id}`);
+```
+
+`createScoltaTracker(config)` defaults `rebuild` to this package's `buildIndex`
+(`BuildIntent.fresh`, no force); pass your own `rebuild` to override it. The
+in-process debounce needs a long-running process — it works under Nuxt's
+server/SSR mode, but a static `nuxt generate` or a serverless deploy has no
+shared in-process timer, so trigger rebuilds via webhook/CI there. scolta-next's
+Payload `afterChange`/`afterDelete` hooks are a reference wiring.

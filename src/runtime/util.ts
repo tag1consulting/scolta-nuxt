@@ -17,12 +17,6 @@ export interface EndpointResultLike {
   limit?: number;
 }
 
-/** Resolve the per-request config from Nuxt runtimeConfig + environment. */
-export function resolveConfig(): NuxtScoltaConfig {
-  const rc = useRuntimeConfig();
-  return NuxtScoltaConfig.fromEnv((rc.scolta ?? {}));
-}
-
 // Nitro hands every request the same runtimeConfig object, so its identity
 // keys the cache: config + API construction (an env re-parse over ~50 fields
 // plus AI service wiring) happens once per config, not once per request. A

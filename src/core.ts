@@ -17,3 +17,9 @@ export {
   type EnumeratedContent,
 } from "./content-source.js";
 export { buildWindowScolta, type BootstrapOptions } from "./bootstrap.js";
+export {
+  ScoltaTracker,
+  createScoltaTracker,
+  type TrackerOptions,
+  type CreateTrackerOptions,
+} from "./tracker.js";
