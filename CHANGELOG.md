@@ -4,6 +4,18 @@
 
 ### Added
 
+- **Exposed `ScoltaTracker`** — the debounced rebuild-on-content-change helper
+  the `autoRebuild` / `autoRebuildDelay` config knobs configure, matching
+  scolta-next. `touch(key)` records a change and schedules a single debounced
+  rebuild that reuses the token cache (only changed pages re-tokenize);
+  `createScoltaTracker(config)` wires the default `rebuild` to this package's
+  `buildIndex` (`BuildIntent.fresh`, no force), overridable via an explicit
+  `rebuild`. Wire `touch()` to your content events under Nuxt server/SSR mode;
+  static `nuxt generate` / serverless deploys rebuild via CI/webhook. Previously
+  the `autoRebuild`/`autoRebuildDelay` knobs were declared but read by nothing —
+  and the README's "same `ScoltaTracker` pattern as scolta-next" claim was
+  untrue without the helper actually present.
+
 - **npm pack-content guard.** A new CI step (`npm run check:pack`,
   `scripts/check-pack-contents.mjs`) runs `npm pack --dry-run --json` and
   asserts every packed path stays inside an allowlist of prefixes DERIVED
@@ -27,6 +39,14 @@
   publishes — so a tagged commit could ship a tarball the PR gate would have
   rejected. Both now run after `build`/`test` and before `npm publish`, gating
   the published tarball the same way CI gates PRs.
+
+### Removed
+
+- **Dead `resolveConfig()` in `src/runtime/util.ts`.** The per-request config
+  resolution it provided was superseded by the memoized `useScoltaApi()`, which
+  resolves config and constructs the API once per `runtimeConfig` identity;
+  `resolveConfig()` had zero callers across `src`/`tests` after that refactor.
+  Removed.
 
 ## [1.0.1] - 2026-06-12
 
