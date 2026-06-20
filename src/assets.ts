@@ -9,9 +9,25 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 
 export function resolveScoltaAssetsDir(fromUrl: string): string {
-  const require = createRequire(fromUrl);
-  const pkgJson = require.resolve("scolta/package.json");
-  return path.join(path.dirname(pkgJson), "assets");
+  // Prefer the `scolta` installed in the consuming project (the cwd where
+  // `scolta-build` runs), not the copy nested inside this adapter package's
+  // own node_modules — those can be different versions and would serve stale
+  // runtime assets. Fall back to resolving relative to this module.
+  const bases = [
+    path.join(process.cwd(), "package.json"), // project root
+    fromUrl, // this adapter module
+  ];
+  for (const base of bases) {
+    try {
+      const pkgJson = createRequire(base).resolve("scolta/package.json");
+      return path.join(path.dirname(pkgJson), "assets");
+    } catch {
+      // try next base
+    }
+  }
+  throw new Error(
+    "Could not resolve the 'scolta' package. Is it installed in this project?",
+  );
 }
 
 function copyDir(src: string, dest: string): number {
