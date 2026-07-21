@@ -15,6 +15,8 @@
   in the cwd where `scolta-build` runs and only falls back to the module-relative
   copy. Added a resolver unit test asserting project resolution wins.
 
+## [1.0.1] - 2026-07-10
+
 ### Added
 
 - **Exposed `ScoltaTracker`** — the debounced rebuild-on-content-change helper
@@ -28,7 +30,6 @@
   the `autoRebuild`/`autoRebuildDelay` knobs were declared but read by nothing —
   and the README's "same `ScoltaTracker` pattern as scolta-next" claim was
   untrue without the helper actually present.
-
 - **npm pack-content guard.** A new CI step (`npm run check:pack`,
   `scripts/check-pack-contents.mjs`) runs `npm pack --dry-run --json` and
   asserts every packed path stays inside an allowlist of prefixes DERIVED
@@ -40,6 +41,18 @@
   or vendored assets can never leak into the published module — failures print
   the leaked path and point at the package.json `files` filter. Runs after
   `npm run build` (so `dist/` exists) and locally via the same script.
+- **Widget-mount smoke test** — mounting `<ScoltaSearch>` with
+  @vue/test-utils under jsdom now asserts the container div renders, the
+  stylesheet/script tags inject with the right URLs, and the emitted
+  `window.scolta` carries `container` + a `wasmPath` ending in the WASM glue
+  module (nothing previously exercised the `onMounted`/DOM path).
+- **CI and tag-triggered releases.** `.github/workflows/ci.yml` (PRs + main;
+  Node 20/22 matrix; `npm ci`, build, test, typecheck, lint,
+  `check:publish`) and `.github/workflows/release.yml` (`v*.*.*` tags publish
+  to npm via OIDC Trusted Publishing — no long-lived token, automatic
+  provenance).
+- **Publish-shape gate.** `check:publish` runs publint +
+  `@arethetypeswrong/cli`; part of the local and CI gates.
 
 ### Changed
 
@@ -52,16 +65,20 @@
   publishes — so a tagged commit could ship a tarball the PR gate would have
   rejected. Both now run after `build`/`test` and before `npm publish`, gating
   the published tarball the same way CI gates PRs.
-
-### Removed
-
-- **Dead `resolveConfig()` in `src/runtime/util.ts`.** The per-request config
-  resolution it provided was superseded by the memoized `useScoltaApi()`, which
-  resolves config and constructs the API once per `runtimeConfig` identity;
-  `resolveConfig()` had zero callers across `src`/`tests` after that refactor.
-  Removed.
-
-## [1.0.1] - 2026-06-12
+- **The health route now returns status-only by default.**
+  `GET /api/scolta/v1/health` previously exposed the full diagnostic payload
+  (AI provider, configured flags, index state, scoring config) to every
+  caller. Monitoring endpoints keep working: the route still answers HTTP 200
+  with `{"status": "ok"|"degraded"}`, computed from the full report so
+  degradation stays visible. The detail moved behind the new `healthDetail`
+  module option (default `false`); there is no user model in a headless
+  stack, so detail is config-gated rather than auth-gated. Matches the
+  status-only anonymous shape of the PHP-family and Django adapters.
+- eslint moved to `recommendedTypeChecked`; `noImplicitOverride` enabled;
+  documented scoped exceptions for the tests' unsafe-any family.
+- vitest 1.6 -> 3.2.6 (dev-only; pulls vite 7 / patched esbuild for the
+  GHSA-67mh-4wv8-2f99 dev-server advisory).
+- package metadata: `repository`/`bugs` fields added.
 
 ### Fixed
 
@@ -78,8 +95,8 @@
   CJS build passes an exit-code-only check.
 - **`bin[scolta-build]` publish warning** — npm "cleaned" the bin value's
   `./` prefix at every publish; normalized via `npm pkg fix`
-  (`./dist/cli.js` → `dist/cli.js`). `npm publish --dry-run` is now
-  warning-free.
+  (`./dist/cli.js` → `dist/cli.js`). `npm publish --dry-run` no longer
+  warns.
 - **Per-request config + API construction memoized.** Every Nitro request
   called `createScoltaApi(resolveConfig())`, re-parsing env and ~50 config
   fields and re-wiring the AI service per request. Nitro hands every request
@@ -99,37 +116,13 @@
   declaration ever reaches the published `.d.ts` (it would augment/shadow
   consumers' real modules).
 
-### Changed
+### Removed
 
-- **The health route now returns status-only by default.**
-  `GET /api/scolta/v1/health` previously exposed the full diagnostic payload
-  (AI provider, configured flags, index state, scoring config) to every
-  caller. Monitoring endpoints keep working: the route still answers HTTP 200
-  with `{"status": "ok"|"degraded"}`, computed from the full report so
-  degradation stays visible. The detail moved behind the new `healthDetail`
-  module option (default `false`); there is no user model in a headless
-  stack, so detail is config-gated rather than auth-gated. Matches the
-  status-only anonymous shape of the PHP-family and Django adapters.
-- eslint moved to `recommendedTypeChecked`; `noImplicitOverride` enabled;
-  documented scoped exceptions for the tests' unsafe-any family.
-- vitest 1.6 -> 3.2.6 (dev-only; pulls vite 7 / patched esbuild for the
-  GHSA-67mh-4wv8-2f99 dev-server advisory).
-- package metadata: `repository`/`bugs` fields added.
-
-### Added
-
-- **Widget-mount smoke test** — mounting `<ScoltaSearch>` with
-  @vue/test-utils under jsdom now asserts the container div renders, the
-  stylesheet/script tags inject with the right URLs, and the emitted
-  `window.scolta` carries `container` + a `wasmPath` ending in the WASM glue
-  module (nothing previously exercised the `onMounted`/DOM path).
-- **CI and tag-triggered releases.** `.github/workflows/ci.yml` (PRs + main;
-  Node 20/22 matrix; `npm ci`, build, test, typecheck, lint,
-  `check:publish`) and `.github/workflows/release.yml` (`v*.*.*` tags publish
-  to npm via OIDC Trusted Publishing — no long-lived token, automatic
-  provenance).
-- **Publish-shape gate.** `check:publish` runs publint +
-  `@arethetypeswrong/cli`; part of the local and CI gates.
+- **Dead `resolveConfig()` in `src/runtime/util.ts`.** The per-request config
+  resolution it provided was superseded by the memoized `useScoltaApi()`, which
+  resolves config and constructs the API once per `runtimeConfig` identity;
+  `resolveConfig()` had zero callers across `src`/`tests` after that refactor.
+  Removed.
 
 ## [1.0.0] - 2026-06-09
 
@@ -142,9 +135,9 @@
   envelope — matching what `scolta.js` reads and the Django/Laravel/Drupal
   controllers emit. (Previously the widget received the data nested under
   `data`, so AI overviews and expansion chips never rendered.)
-- Default the AI service to the auto-provisioning `AmazeeAiService` when the
-  resolved provider is `amazee` (free LiteLLM trial, no key required), backed by
-  a filesystem credential store under the state dir.
+- Default the AI service to the auto-configuring `AmazeeAiService` when the
+  resolved provider is `amazee` (managed LiteLLM endpoint via Amazee.ai, no key
+  required), backed by a filesystem credential store under the state dir.
 - `fromEnv` now lets `SCOLTA_AI_PROVIDER` / `SCOLTA_API_KEY` / `SCOLTA_AI_MODEL`
   / `SCOLTA_AI_BASE_URL` override the static config, so a deployment can point AI
   at an explicit provider/key and bypass the Amazee default.
