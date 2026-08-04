@@ -60,7 +60,11 @@ export class NuxtScoltaConfig {
   /**
    * Environment values win over the static config so a deployment can point AI
    * at an explicit provider/key (e.g. SCOLTA_AI_PROVIDER=anthropic +
-   * SCOLTA_API_KEY) and skip the Amazee default.
+   * SCOLTA_API_KEY).
+   *
+   * There is no default provider, and Amazee is not one: with
+   * SCOLTA_AI_PROVIDER unset, AI features are off and no provider is assumed.
+   * Setting it to `amazee` is the opt-in that permits the demo connection.
    */
   static fromEnv(init: NuxtScoltaConfigInit = {}, env: NodeJS.ProcessEnv = process.env): NuxtScoltaConfig {
     const merged: NuxtScoltaConfigInit = { ...init };
