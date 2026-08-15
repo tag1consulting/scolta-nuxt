@@ -1,4 +1,4 @@
-# MAINTAINING — scolta-nuxt
+# Maintaining scolta-nuxt
 
 The Nuxt 3 module over the `scolta` binding. Publishes to npm.
 
